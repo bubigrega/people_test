@@ -1,25 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import "./App.css";
+import { CardList } from "./components/card_list/card_list.component";
+import { Search } from "./components/search/search.component";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  constructor() {
+    super();
+    this.state = {
+      people: [],
+      term: "",
+    };
+    this.handleChange = this.handleChange.bind(this);
+  }
+  handleChange(e) {
+    this.setState({
+      term: e.target.value.toLowerCase(),
+    });
+  }
+
+  componentDidMount() {
+    fetch("https://fakerapi.it/api/v1/persons?_quantity=10")
+      .then((res) => res.json())
+      .then((data) => this.setState({ people: data.data }));
+  }
+
+  render() {
+    const { people, term } = this.state;
+    const filteredPeople = people.filter(
+      (p) =>
+        p.firstname.toLowerCase().includes(term) ||
+        p.lastname.toLowerCase().includes(term)
+    );
+    return (
+      <div className="App">
+        <Search handleChange={this.handleChange} />
+        <CardList people={filteredPeople} />
+        <pre>{JSON.stringify(people, true, 2)}</pre>
+      </div>
+    );
+  }
 }
 
 export default App;
